@@ -1,0 +1,21 @@
+{
+  "name": "pdfCraft API",
+  "description": "A powerful REST API for PDF processing operations",
+  "repository": "https://github.com/Suryanshu185/pdfCraft",
+  "variables": {
+    "GO_ENV": "production",
+    "PORT": "8080",
+    "MAX_FILE_SIZE": "50MB",
+    "CACHE_TTL": "3600",
+    "LOG_LEVEL": "info",
+    "ENABLE_CORS": "true",
+    "RATE_LIMIT_REQUESTS": "100"
+  },
+  "deploy": {
+    "template": "dockerfile",
+    "healthcheck": {
+      "path": "/health",
+      "port": 8080
+    }
+  }
+}

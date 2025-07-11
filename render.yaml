@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: pdfcraft-api
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: GO_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: MAX_FILE_SIZE
+        value: 50MB
+      - key: CACHE_TTL
+        value: 3600
+      - key: LOG_LEVEL
+        value: info
+      - key: ENABLE_CORS
+        value: true
+      - key: RATE_LIMIT_REQUESTS
+        value: 100
+    healthCheckPath: /health
+    domains:
+      - pdfcraft-api.onrender.com
+    buildCommand: docker build -t pdfcraft-api .
+    startCommand: ./pdfcraft-api
+    disk:
+      name: pdfcraft-storage
+      mountPath: /app/uploads
+      sizeGB: 5
