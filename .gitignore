@@ -38,6 +38,7 @@ pdfcraft-api
 uploads/
 temp/
 cache/
+!pkg/cache/
 test_files/
 
 # Docker
