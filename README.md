@@ -620,6 +620,37 @@ LOG_LEVEL=debug
 5. Ensure all tests pass
 6. Submit a pull request
 
+## Quick Hosting Guide
+
+Ready to host pdfCraft API online for public use? Here are the fastest ways to get started:
+
+### 🚀 One-Click Deployment
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Suryanshu185/pdfCraft)
+[![Deploy to Railway](https://railway.app/button.svg)](https://railway.app/template/pdfcraft-api)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Suryanshu185/pdfCraft)
+
+### 📋 Quick Setup Steps
+
+1. **Choose a platform**: Heroku (easiest), Railway (fast), or Render (free tier)
+2. **Click deploy button** above or manually deploy using platform CLI
+3. **Set environment variables**: `PORT=8080`, `GO_ENV=production`
+4. **Configure custom domain** (optional) in platform settings
+5. **Enable SSL/TLS** for secure API access
+
+### 🔗 Your API will be available at:
+- `https://your-app.herokuapp.com` (Heroku)
+- `https://your-app.railway.app` (Railway)
+- `https://your-app.onrender.com` (Render)
+
+### 📖 Need detailed instructions?
+See the complete [Web Hosting for Public Use](#web-hosting-for-public-use) section above for:
+- Production configurations
+- Security best practices
+- Scaling and monitoring
+- Custom domain setup
+- SSL certificate installation
+
 ## License
 
 This project is licensed under the MIT License.
