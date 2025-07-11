@@ -1,0 +1,56 @@
+{
+  "name": "pdfCraft API",
+  "description": "A powerful REST API for PDF processing operations built with Go and pdfcpu",
+  "repository": "https://github.com/Suryanshu185/pdfCraft",
+  "logo": "https://raw.githubusercontent.com/Suryanshu185/pdfCraft/main/logo.png",
+  "keywords": ["go", "pdf", "api", "processing", "merge", "split", "watermark", "compress"],
+  "website": "https://github.com/Suryanshu185/pdfCraft",
+  "stack": "container",
+  "env": {
+    "GO_ENV": {
+      "description": "Environment mode",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Server port",
+      "value": "8080"
+    },
+    "MAX_FILE_SIZE": {
+      "description": "Maximum file size for uploads",
+      "value": "50MB"
+    },
+    "CACHE_TTL": {
+      "description": "Cache time-to-live in seconds",
+      "value": "3600"
+    },
+    "LOG_LEVEL": {
+      "description": "Logging level",
+      "value": "info"
+    },
+    "ENABLE_CORS": {
+      "description": "Enable CORS for web requests",
+      "value": "true"
+    },
+    "RATE_LIMIT_REQUESTS": {
+      "description": "Rate limit requests per hour",
+      "value": "100"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/go"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-redis:mini",
+      "as": "REDIS"
+    }
+  ]
+}

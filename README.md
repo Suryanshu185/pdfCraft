@@ -199,9 +199,278 @@ The API includes built-in file caching to improve performance:
 - Cache directory: `cache/`
 - Automatic cleanup of expired files
 
-## Production Deployment
+## Web Hosting for Public Use
 
-### Docker Deployment
+### Quick Deploy Options
+
+Deploy pdfCraft API to the web with these one-click solutions:
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/Suryanshu185/pdfCraft)
+
+[![Deploy to Railway](https://railway.app/button.svg)](https://railway.app/template/pdfcraft-api)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Suryanshu185/pdfCraft)
+
+### Cloud Platform Deployment
+
+#### 1. **Heroku** (Recommended for beginners)
+
+```bash
+# Install Heroku CLI and login
+heroku login
+
+# Create a new Heroku app
+heroku create your-pdfcraft-api
+
+# Set environment variables
+heroku config:set PORT=8080
+heroku config:set GO_ENV=production
+
+# Deploy
+git push heroku main
+```
+
+**Custom Domain Setup:**
+```bash
+# Add custom domain
+heroku domains:add api.yourdomain.com
+
+# Enable SSL (automatic with custom domains)
+heroku certs:auto:enable
+```
+
+#### 2. **Google Cloud Platform (Cloud Run)**
+
+```bash
+# Build and push to Google Container Registry
+gcloud builds submit --tag gcr.io/[PROJECT-ID]/pdfcraft-api
+
+# Deploy to Cloud Run
+gcloud run deploy pdfcraft-api \
+  --image gcr.io/[PROJECT-ID]/pdfcraft-api \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --port 8080 \
+  --memory 1Gi \
+  --cpu 1 \
+  --max-instances 100
+```
+
+#### 3. **AWS (Elastic Container Service)**
+
+```bash
+# Create ECR repository
+aws ecr create-repository --repository-name pdfcraft-api
+
+# Build and push Docker image
+docker build -t pdfcraft-api .
+docker tag pdfcraft-api:latest [AWS_ACCOUNT_ID].dkr.ecr.[REGION].amazonaws.com/pdfcraft-api:latest
+docker push [AWS_ACCOUNT_ID].dkr.ecr.[REGION].amazonaws.com/pdfcraft-api:latest
+
+# Deploy using ECS (via AWS Console or CLI)
+```
+
+#### 4. **Railway** (Simple deployment)
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login and deploy
+railway login
+railway link
+railway up
+```
+
+#### 5. **Render** (Free tier available)
+
+1. Connect your GitHub repository to Render
+2. Select "Web Service"
+3. Use Docker build
+4. Set environment variables in Render dashboard
+
+### Environment Variables for Production
+
+Set these environment variables in your hosting platform:
+
+```bash
+# Server Configuration
+PORT=8080
+GO_ENV=production
+HOST=0.0.0.0
+
+# File Storage (for persistent storage)
+UPLOAD_DIR=/app/uploads
+CACHE_DIR=/app/cache
+TEMP_DIR=/app/temp
+
+# Cache Configuration
+CACHE_TTL=3600  # 1 hour in seconds
+MAX_CACHE_SIZE=1GB
+
+# Security
+MAX_FILE_SIZE=50MB
+ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+ENABLE_CORS=true
+
+# Rate Limiting
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_WINDOW=3600  # 1 hour in seconds
+
+# Monitoring
+LOG_LEVEL=info
+ENABLE_METRICS=true
+```
+
+### Security Considerations
+
+#### 1. **File Upload Security**
+- Maximum file size limits (50MB recommended)
+- File type validation (PDF only)
+- Virus scanning for uploaded files
+- Temporary file cleanup
+
+#### 2. **API Security**
+```bash
+# Add these headers in production
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Content-Security-Policy: default-src 'self'
+```
+
+#### 3. **Rate Limiting**
+Implement rate limiting to prevent abuse:
+- 100 requests per hour per IP
+- 10 MB total upload per hour per IP
+- Concurrent request limiting
+
+#### 4. **HTTPS/TLS**
+- Always use HTTPS in production
+- Redirect HTTP to HTTPS
+- Use strong TLS configuration
+
+### Domain Setup
+
+#### 1. **Custom Domain Configuration**
+```bash
+# For Heroku
+heroku domains:add api.yourdomain.com
+
+# For Google Cloud Run
+gcloud run domain-mappings create \
+  --service pdfcraft-api \
+  --domain api.yourdomain.com
+```
+
+#### 2. **DNS Configuration**
+Add these DNS records:
+```
+Type: CNAME
+Name: api
+Value: your-app-name.herokuapp.com  # Or platform-specific URL
+```
+
+### Monitoring and Logging
+
+#### 1. **Health Monitoring**
+- Use the `/health` endpoint for uptime monitoring
+- Set up alerts for API downtime
+- Monitor response times and error rates
+
+#### 2. **Logging Setup**
+```bash
+# Production logging configuration
+LOG_LEVEL=info
+LOG_FORMAT=json
+LOG_OUTPUT=stdout
+
+# Optional: Send logs to external services
+LOGZIO_TOKEN=your_token  # For Logz.io
+PAPERTRAIL_URL=your_url  # For Papertrail
+```
+
+#### 3. **Performance Monitoring**
+- Monitor CPU and memory usage
+- Track file processing times
+- Set up alerts for high resource usage
+
+### Scaling and Performance
+
+#### 1. **Horizontal Scaling**
+```bash
+# Heroku
+heroku ps:scale web=3
+
+# Google Cloud Run (auto-scaling)
+gcloud run services update pdfcraft-api \
+  --min-instances=1 \
+  --max-instances=100
+
+# AWS ECS (auto-scaling group)
+aws ecs update-service \
+  --cluster pdfcraft-cluster \
+  --service pdfcraft-api \
+  --desired-count 3
+```
+
+#### 2. **Load Balancing**
+- Use platform-native load balancers
+- Implement health checks
+- Configure SSL termination
+
+#### 3. **Caching Strategy**
+- Enable Redis for distributed caching
+- Use CDN for static assets
+- Implement response caching
+
+### API Usage Examples
+
+#### Production API Base URL
+```bash
+# Replace with your actual domain
+API_BASE_URL="https://api.yourdomain.com"
+
+# Health check
+curl "$API_BASE_URL/health"
+
+# Merge PDFs
+curl -X POST \
+  -F "files=@document1.pdf" \
+  -F "files=@document2.pdf" \
+  "$API_BASE_URL/api/v1/pdf/merge" \
+  --output merged.pdf
+```
+
+### Cost Optimization
+
+#### 1. **Resource Optimization**
+- Use appropriate instance sizes
+- Implement request batching
+- Optimize Docker image size
+- Use multi-stage builds
+
+#### 2. **Storage Optimization**
+- Implement file cleanup schedules
+- Use object storage for large files
+- Compress temporary files
+
+### Backup and Disaster Recovery
+
+#### 1. **Data Backup**
+- Regular database backups (if using one)
+- Configuration backup
+- Code repository backup
+
+#### 2. **Disaster Recovery**
+- Multi-region deployment
+- Automated failover
+- Regular recovery testing
+
+### Production Deployment
+
+#### Docker Deployment
 
 1. Build the Docker image:
 ```bash
@@ -213,7 +482,7 @@ docker build -t pdfcraft-api .
 docker-compose up -d
 ```
 
-### Kubernetes Deployment
+#### Kubernetes Deployment
 
 Example Kubernetes configuration:
 
@@ -240,6 +509,27 @@ spec:
         env:
         - name: PORT
           value: "8080"
+        - name: GO_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
@@ -253,7 +543,73 @@ spec:
     port: 80
     targetPort: 8080
   type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pdfcraft-api-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - api.yourdomain.com
+    secretName: pdfcraft-tls
+  rules:
+  - host: api.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pdfcraft-api-service
+            port:
+              number: 80
 ```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **File Upload Errors**
+   - Check file size limits (50MB default)
+   - Ensure PDF file format is valid
+   - Verify disk space availability
+
+2. **Memory Issues**
+   - Increase container memory limits
+   - Implement request queuing for large files
+   - Monitor memory usage patterns
+
+3. **Performance Issues**
+   - Enable file caching
+   - Implement request batching
+   - Use CDN for static assets
+
+4. **SSL/TLS Issues**
+   - Verify domain DNS configuration
+   - Check certificate validity
+   - Ensure proper port binding
+
+#### Debug Mode
+
+Enable debug mode for troubleshooting:
+```bash
+# Set environment variable
+DEBUG=true
+LOG_LEVEL=debug
+
+# Or run with debug flag
+./pdfcraft-api --debug
+```
+
+### Support
+
+- **Issues**: [GitHub Issues](https://github.com/Suryanshu185/pdfCraft/issues)
+- **Documentation**: [API Documentation](https://api.yourdomain.com/docs)
+- **Status Page**: [System Status](https://status.yourdomain.com)
 
 ## Contributing
 
