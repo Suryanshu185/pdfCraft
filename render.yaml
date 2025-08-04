@@ -22,8 +22,6 @@ services:
     healthCheckPath: /health
     domains:
       - pdfcraft-api.onrender.com
-    buildCommand: docker build -t pdfcraft-api .
-    startCommand: ./pdfcraft-api
     disk:
       name: pdfcraft-storage
       mountPath: /app/uploads
